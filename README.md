@@ -1,8 +1,8 @@
-# NYTDisplay Installer
+# E1004 Web Flasher
 
 A static Web Serial installer for the [NYTDisplay general-edition firmware](https://github.com/AndrewMohawk/NYTDisplay) on the Seeed reTerminal E1004. It includes a prepared factory image and also accepts a local merged ESP32-S3 `.bin` file. Local files stay in the browser.
 
-**[Open the HTTPS installer](https://andrewmohawk.github.io/NYTDisplay-Installer/)**
+**[Open the HTTPS web flasher](https://andrewmohawk.github.io/E1004-WebFlasher/)**
 
 The prepared image is an **experimental build** of [firmware commit `084c946`](https://github.com/AndrewMohawk/NYTDisplay/commit/084c946e38cc3dd3026a0c3b61042b3434c3050c). It built and passed host checks, but this edition has not yet been flashed and tested on a physical E1004.
 
