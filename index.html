@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#d7ff35">
+  <link rel="icon" href="data:,">
+  <title>NYTDisplay Installer</title>
+  <meta name="description" content="Install the general-edition NYTDisplay firmware on a Seeed reTerminal E1004.">
+  <script type="module" src="https://unpkg.com/esp-web-tools@10.4.0/dist/web/install-button.js?module"></script>
+  <style>
+    :root {
+      --ink: #151713;
+      --paper: #f1eee5;
+      --panel: #faf8f1;
+      --signal: #d7ff35;
+      --muted: #696d64;
+      --line: #c8c6bc;
+      --danger: #9e3626;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--ink);
+      background:
+        repeating-linear-gradient(0deg, #15171308 0 1px, transparent 1px 5px),
+        var(--paper);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    main { width: min(100%, 540px); }
+    header { margin-bottom: 20px; }
+    .eyebrow, label, .or, .status, .note, footer {
+      font-family: "Courier New", Courier, monospace;
+      letter-spacing: .07em;
+    }
+    .eyebrow { margin: 0 0 7px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(48px, 12vw, 78px); line-height: .9; letter-spacing: -.065em; }
+    .card {
+      border: 2px solid var(--ink);
+      background: var(--panel);
+      box-shadow: 9px 9px 0 var(--ink);
+      padding: 28px;
+    }
+    .select-wrap { position: relative; }
+    label { display: block; margin-bottom: 9px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+    select, .file-label {
+      width: 100%;
+      min-height: 54px;
+      border: 1.5px solid var(--ink);
+      border-radius: 0;
+      background: #fff;
+      color: var(--ink);
+      font: 17px Georgia, serif;
+    }
+    select { appearance: none; padding: 0 48px 0 15px; cursor: pointer; }
+    .select-wrap::after {
+      content: "↓";
+      position: absolute;
+      right: 17px;
+      bottom: 15px;
+      pointer-events: none;
+      font: bold 18px "Courier New", monospace;
+    }
+    select:focus-visible, .file-label:focus-within, .flash:focus-visible {
+      outline: 4px solid var(--signal);
+      outline-offset: 3px;
+    }
+    .or { display: flex; align-items: center; gap: 12px; margin: 22px 0; color: var(--muted); font-size: 10px; font-weight: bold; }
+    .or::before, .or::after { content: ""; height: 1px; flex: 1; background: var(--line); }
+    input[type="file"] { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; }
+    .file-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .file-label strong {
+      flex: none;
+      background: var(--ink);
+      color: var(--panel);
+      padding: 8px 10px;
+      font: bold 11px "Courier New", monospace;
+      text-transform: uppercase;
+    }
+    #file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .note { margin: 9px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .selection {
+      margin: 24px -28px 0;
+      padding: 14px 28px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #ece9df;
+    }
+    .status { margin: 0; font-size: 11px; line-height: 1.5; }
+    .status strong { color: var(--danger); text-transform: uppercase; }
+    esp-web-install-button { display: block; margin-top: 24px; }
+    .flash {
+      width: 100%;
+      min-height: 58px;
+      border: 2px solid var(--ink);
+      background: var(--signal);
+      color: var(--ink);
+      box-shadow: 6px 6px 0 var(--ink);
+      cursor: pointer;
+      font: bold 14px "Courier New", monospace;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      transition: transform .12s, box-shadow .12s;
+    }
+    .flash:hover:not(:disabled) { transform: translate(3px, 3px); box-shadow: 3px 3px 0 var(--ink); }
+    .flash:disabled { cursor: not-allowed; opacity: .5; }
+    .unsupported { display: block; border-left: 4px solid var(--danger); padding: 12px; background: #fff; font-size: 14px; }
+    footer { margin-top: 22px; text-align: center; color: var(--muted); font-size: 9px; text-transform: uppercase; }
+    @media (max-width: 520px) {
+      body { align-items: start; padding: 22px 14px; }
+      .card { padding: 21px; box-shadow: 6px 6px 0 var(--ink); }
+      .selection { margin-inline: -21px; padding-inline: 21px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .flash { transition: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Seeed reTerminal E1004 · USB</p>
+      <h1>NYTDisplay</h1>
+    </header>
+
+    <section class="card" aria-label="Firmware selection">
+      <div class="field">
+        <label for="firmware">Prepared firmware</label>
+        <div class="select-wrap">
+          <select id="firmware">
+            <option value="./firmware/manifest.json" selected>General edition — E1004</option>
+            <option value="" disabled>Custom firmware selected</option>
+          </select>
+        </div>
+        <p class="note">Experimental build. Confirm your device is an E1004 before flashing. This general edition has not yet been tested on physical hardware.</p>
+      </div>
+
+      <div class="or">or</div>
+
+      <div>
+        <label for="custom-file">Select a local image</label>
+        <label class="file-label" for="custom-file">
+          <strong>Choose .bin</strong>
+          <span id="file-name">No file selected</span>
+        </label>
+        <input id="custom-file" type="file" accept=".bin,application/octet-stream">
+        <p class="note">Merged ESP32-S3 image for offset 0, up to 32 MB. The file stays in this browser. This page cannot verify that a custom image matches your board.</p>
+      </div>
+
+      <div class="selection">
+        <p class="status" id="selection-status" role="status" aria-live="polite">Selected: <strong>General edition — E1004</strong></p>
+      </div>
+
+      <esp-web-install-button id="installer" manifest="./firmware/manifest.json">
+        <button class="flash" slot="activate">Connect &amp; flash</button>
+        <span class="unsupported" slot="unsupported">Use desktop Chrome or Edge to access the USB serial device.</span>
+        <span class="unsupported" slot="not-allowed">Open the secure HTTPS version of this page.</span>
+      </esp-web-install-button>
+    </section>
+
+    <footer><span id="browser-status">Checking browser support…</span> · <a href="https://github.com/AndrewMohawk/NYTDisplay">Firmware source</a></footer>
+  </main>
+
+  <script>
+    const select = document.getElementById('firmware');
+    const fileInput = document.getElementById('custom-file');
+    const fileName = document.getElementById('file-name');
+    const selectionStatus = document.getElementById('selection-status');
+    const installer = document.getElementById('installer');
+    const flashButton = document.querySelector('.flash');
+    const browserStatus = document.getElementById('browser-status');
+    let customFirmwareUrl = null;
+    let customManifestUrl = null;
+
+    function setStatus(prefix, detail) {
+      const strong = document.createElement('strong');
+      strong.textContent = detail;
+      selectionStatus.replaceChildren(document.createTextNode(prefix), strong);
+    }
+
+    function releaseCustomUrls() {
+      if (customManifestUrl) URL.revokeObjectURL(customManifestUrl);
+      if (customFirmwareUrl) URL.revokeObjectURL(customFirmwareUrl);
+      customManifestUrl = null;
+      customFirmwareUrl = null;
+    }
+
+    function usePreconfigured() {
+      if (!select.value) return;
+      releaseCustomUrls();
+      fileInput.value = '';
+      fileName.textContent = 'No file selected';
+      installer.manifest = select.value;
+      flashButton.disabled = false;
+      setStatus('Selected: ', 'General edition — E1004');
+    }
+
+    select.addEventListener('change', usePreconfigured);
+
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      if (!file.name.toLowerCase().endsWith('.bin') || file.size < 1 || file.size > 32 * 1024 * 1024) {
+        releaseCustomUrls();
+        fileInput.value = '';
+        fileName.textContent = 'No file selected';
+        select.value = '';
+        installer.manifest = '';
+        flashButton.disabled = true;
+        setStatus('Custom file rejected: ', 'choose a .bin up to 32 MB');
+        return;
+      }
+      const magic = new Uint8Array(await file.slice(0, 1).arrayBuffer())[0];
+      if (magic !== 0xe9) {
+        releaseCustomUrls();
+        fileInput.value = '';
+        fileName.textContent = 'No file selected';
+        select.value = '';
+        installer.manifest = '';
+        flashButton.disabled = true;
+        setStatus('Custom file rejected: ', 'not an ESP image');
+        return;
+      }
+
+      releaseCustomUrls();
+      customFirmwareUrl = URL.createObjectURL(file);
+      const manifest = {
+        name: 'Custom ESP32-S3 firmware',
+        version: `${file.name}-${file.lastModified}`,
+        new_install_prompt_erase: true,
+        new_install_improv_wait_time: 0,
+        builds: [{
+          chipFamily: 'ESP32-S3',
+          serialType: 'uart',
+          improv: false,
+          parts: [{ path: customFirmwareUrl, offset: 0 }]
+        }]
+      };
+      customManifestUrl = URL.createObjectURL(new Blob(
+        [JSON.stringify(manifest)], { type: 'application/json' }
+      ));
+      select.value = '';
+      installer.manifest = customManifestUrl;
+      fileName.textContent = file.name;
+      flashButton.disabled = false;
+      setStatus('Selected local file: ', file.name);
+    });
+
+    addEventListener('beforeunload', releaseCustomUrls);
+    if (!window.isSecureContext) browserStatus.textContent = 'HTTPS required';
+    else if (!('serial' in navigator)) browserStatus.textContent = 'Web Serial unavailable · use desktop Chrome or Edge';
+    else browserStatus.textContent = 'Web Serial ready · files stay in your browser';
+  </script>
+</body>
+</html>
